@@ -1,0 +1,620 @@
+[
+    {
+        "taskKey": "manager-publish",
+        "version": "1.0.4",
+        "defaultName": "运营平台自动打包，并发布到指定服务器",
+        "taskName": "",
+        "params": [
+            {
+                "label": "项目常量",
+                "paramName": "taskConstant",
+                "interactiveComponent": "input",
+                "accessType": "preinstall",
+                "description": "项目需要的常量配置，不需要用户配置，创建时初始化好就行",
+                "value": {
+                    "allPackageList": [
+                        {
+                            "key": "images",
+                            "source": "./servePackage/piczone/",
+                            "target": ["{localCachePath}", "{imageDir}"]
+                        },
+                        {
+                            "key": "docker",
+                            "source": "./servePackage/docker/",
+                            "target": ["{localCachePath}", "{mainTargetPath}"]
+                        },
+                        {
+                            "key": "webDist",
+                            "source": "./dist/",
+                            "target": ["{localCachePath}", "{mainTargetPath}", "html"]
+                        },
+                        {
+                            "key": "webServe",
+                            "source": "./servePackage/webServe/",
+                            "target": ["{localCachePath}", "{mainTargetPath}", "webServe"]
+                        },
+                        {
+                            "key": "nodeServe",
+                            "source": "./servePackage/nodeServe/",
+                            "target": ["{localCachePath}", "{mainTargetPath}", "nodeServe"]
+                        },
+                        {
+                            "key": "nodeMongo",
+                            "source": "./servePackage/nodeMongo/",
+                            "target": ["{localCachePath}", "{mainTargetPath}", "nodeMongo"]
+                        }
+                    ],
+                    "mainTargetPath": "FEDF",
+                    "imageDir": "piczone",
+                    "configFilePath": ["{localCachePath}", "{mainTargetPath}", ".env"],
+                    "configFileContent": "front_port={frontPort}\napi_serve={serveUrl}\nm_api_serve={mServeUrl}"
+                }
+            },
+            {
+                "label": "项目配置",
+                "paramName": "taskOption",
+                "interactiveComponent": "select",
+                "extraInfo": {
+                    "multiple": false
+                },
+                "option": [
+                    {
+                        "label": "更新服务",
+                        "value": "update"
+                    },
+                    {
+                        "label": "构建安装包(不更新)",
+                        "value": "install"
+                    }
+                ],
+                "accessType": "direct",
+                "needInput": true,
+                "description": "配置执行方式",
+                "value": "update"
+            },
+            {
+                "label": "功能列表",
+                "paramName": "functionList",
+                "interactiveComponent": "select",
+                "option": [
+                    {
+                        "label": "打包安装镜像",
+                        "value": "save-image"
+                    },
+                    {
+                        "label": "推送图片",
+                        "value": "push-pic"
+                    },
+                    {
+                        "label": "清理图片",
+                        "value": "clear-pic"
+                    }
+                ],
+                "showChangeRule": [
+                    {
+                        "key": "taskOption",
+                        "value": "update",
+                        "condition": "equal"
+                    }
+                ],
+                "accessType": "direct",
+                "needInput": true,
+                "description": "附加操作",
+                "value": []
+            },
+            {
+                "label": "需要更新的服务",
+                "paramName": "rebuildList",
+                "interactiveComponent": "select",
+                "option": [
+                    {
+                        "label": "Web页面更新",
+                        "value": "webDist"
+                    },
+                    {
+                        "label": "Nignx服务更新",
+                        "value": "webServe"
+                    },
+                    {
+                        "label": "Node服务更新",
+                        "value": "nodeServe"
+                    },
+                    {
+                        "label": "Mongo服务更新",
+                        "value": "nodeMongo"
+                    }
+                ],
+                "showChangeRule": [
+                    {
+                        "key": "taskOption",
+                        "value": "update",
+                        "condition": "equal"
+                    }
+                ],
+                "accessType": "direct",
+                "needInput": true,
+                "description": "项目在远端的工作目录",
+                "value": []
+            },
+            {
+                "label": "文件列表",
+                "paramName": "fileList",
+                "interactiveComponent": "file-select",
+                "extraInfo": {
+                    "path": "dist"
+                },
+                "showChangeRule": [
+                    {
+                        "key": "taskOption",
+                        "value": "update",
+                        "condition": "equal"
+                    },
+                    {
+                        "key": "rebuildList",
+                        "value": "webDist",
+                        "condition": "contain"
+                    }
+                ],
+                "accessType": "direct",
+                "needInput": true,
+                "description": "选中要复制的文件列表",
+                "value": ""
+            },
+            {
+                "label": "Scripts方法名称",
+                "paramName": "scriptName",
+                "interactiveComponent": "scripts-select",
+                "needInput": true,
+                "showChangeRule": [
+                    {
+                        "key": "fileList",
+                        "value": "",
+                        "condition": "unequal"
+                    }
+                ],
+                "contentType": "string",
+                "description": "选择你要打包的命令",
+                "value": ""
+            },
+            {
+                "label": "前台发部端口",
+                "paramName": "frontPort",
+                "interactiveComponent": "input",
+                "accessType": "direct",
+                "needInput": true,
+                "showChangeRule": [
+                    {
+                        "key": "taskOption",
+                        "value": "update",
+                        "condition": "equal"
+                    },
+                    {
+                        "key": "rebuildList",
+                        "value": "webServe",
+                        "condition": "contain"
+                    }
+                ],
+                "description": "前台发布的端口",
+                "value": "80"
+            },
+            {
+                "label": "后台接口地址",
+                "paramName": "serveUrl",
+                "interactiveComponent": "input",
+                "accessType": "direct",
+                "needInput": true,
+                "showChangeRule": [
+                    {
+                        "key": "taskOption",
+                        "value": "update",
+                        "condition": "equal"
+                    },
+                    {
+                        "key": "rebuildList",
+                        "value": "webServe",
+                        "condition": "contain"
+                    }
+                ],
+                "description": "配置 nginx 代理接口到哪个地址",
+                "value": "192.168.1.31:9080"
+            },
+            {
+                "label": "移动后台接口地址",
+                "paramName": "mServeUrl",
+                "interactiveComponent": "input",
+                "accessType": "direct",
+                "needInput": true,
+                "showChangeRule": [
+                    {
+                        "key": "taskOption",
+                        "value": "update",
+                        "condition": "equal"
+                    },
+                    {
+                        "key": "rebuildList",
+                        "value": "webServe",
+                        "condition": "contain"
+                    }
+                ],
+                "description": "配置 nginx 代理接口到哪个地址",
+                "value": "192.168.1.31:10086"
+            },
+            {
+                "label": "文件名前辍",
+                "paramName": "packageNamePrefix",
+                "interactiveComponent": "input",
+                "accessType": "direct",
+                "description": "打包的文件名前辍",
+                "value": "farai"
+            },
+            {
+                "label": "包文件名",
+                "paramName": "filenameField",
+                "interactiveComponent": "input",
+                "accessType": "afterCure",
+                "description": "最终生成的包文件名",
+                "value": "filename"
+            },
+            {
+                "label": "缓存目录字段",
+                "paramName": "localCachePath",
+                "interactiveComponent": "input",
+                "accessType": "direct",
+                "description": "指定缓存的路径",
+                "value": ".cache"
+            },
+            {
+                "label": "文件路径",
+                "paramName": "configFile",
+                "accessType": "afterCure",
+                "description": "配置文件路径",
+                "value": "configFilePath"
+            },
+            {
+                "label": "文件内容",
+                "paramName": "fileContent",
+                "accessType": "afterCure",
+                "description": "配置文件内容",
+                "value": "configFileContent"
+            },
+            {
+                "label": "过滤规则",
+                "paramName": "fliterRule",
+                "interactiveComponent": "input",
+                "accessType": "direct",
+                "description": "输入一个正则，匹配需要清除的文件列表",
+                "value": ".zip$"
+            },
+            {
+                "label": "需要保留的文件个数",
+                "paramName": "keepFilesCount",
+                "interactiveComponent": "input",
+                "accessType": "direct",
+                "description": "保留指定个数的版本文件，其它的会清除",
+                "value": "3"
+            },
+            {
+                "label": "远端工作目录",
+                "paramName": "serveWorkPath",
+                "interactiveComponent": "input",
+                "accessType": "direct",
+                "description": "项目在远端的工作目录",
+                "value": "/gptcoder/frontend"
+            },
+            {
+                "label": "服务器地址",
+                "paramName": "serveIp",
+                "interactiveComponent": "input",
+                "accessType": "direct",
+                "needInput": true,
+                "description": "远程服务器的地址",
+                "value": "192.168.1.31"
+            },
+            {
+                "label": "账号",
+                "paramName": "username",
+                "interactiveComponent": "input",
+                "accessType": "direct",
+                "needInput": true,
+                "description": "用于登陆远程服务器的账号",
+                "value": "root"
+            },
+            {
+                "label": "密码",
+                "paramName": "password",
+                "interactiveComponent": "password",
+                "accessType": "direct",
+                "needInput": true,
+                "description": "用于登陆远程服务器的密码",
+                "value": "farben12"
+            },
+            {
+                "label": "打包文件列表",
+                "paramName": "packages",
+                "accessType": "afterCure",
+                "description": "需要打包的文件列表",
+                "value": "packageList"
+            },
+            {
+                "label": "打包文件列表",
+                "paramName": "sshClient",
+                "accessType": "afterCure",
+                "description": "需要打包的文件列表",
+                "value": "funRes.sshLogin"
+            },
+            {
+                "label": "创建工作目录",
+                "paramName": "createWorkPathLabel",
+                "accessType": "direct",
+                "description": "创建工作目录",
+                "value": "创建工作目录"
+            },
+            {
+                "label": "查看 docker 状态指令",
+                "paramName": "commandViewDockerPs",
+                "accessType": "direct",
+                "description": "指令内容",
+                "value": "docker ps | grep fedf"
+            },
+            {
+                "label": "查看 docker 状态指令描述",
+                "paramName": "commandViewDockerPsLabel",
+                "accessType": "direct",
+                "description": "指令描述",
+                "value": "查看当前启动的服务，默认为三条。"
+            },
+
+            {
+                "label": "指令1",
+                "paramName": "sshCommand1",
+                "accessType": "afterCure",
+                "description": "指令1内容",
+                "value": "rm {serveWorkPath}/{imageDir} -rf"
+            },
+            {
+                "label": "指令1描述",
+                "paramName": "sshCommandLabel1",
+                "accessType": "direct",
+                "description": "指令1描述",
+                "value": "清除图床内容"
+            },
+            {
+                "label": "指令2",
+                "paramName": "sshCommand2",
+                "accessType": "afterCure",
+                "description": "指令2内容",
+                "value": "unzip -o -q {serveWorkPath}/{filename} -d {serveWorkPath}"
+            },
+            {
+                "label": "指令2描述",
+                "paramName": "sshCommandLabel2",
+                "accessType": "direct",
+                "description": "指令2描述",
+                "value": "解压文件"
+            },
+            {
+                "label": "指令3",
+                "paramName": "sshCommand3",
+                "accessType": "afterCure",
+                "description": "指令3内容",
+                "value": "cd {serveWorkPath}/{mainTargetPath}; sh ./utils/start.sh {rebuildList}"
+            },
+            {
+                "label": "指令3描述",
+                "paramName": "sshCommandLabel3",
+                "accessType": "direct",
+                "description": "指令3描述",
+                "value": "执行更新docker脚本"
+            },
+
+            {
+                "label": "创建镜像目录",
+                "paramName": "sshCreateDirExport",
+                "accessType": "afterCure",
+                "description": "创建镜像目录",
+                "value": "{serveWorkPath}/images"
+            },
+            {
+                "label": "创建镜像目录label",
+                "paramName": "sshCreateDirExportLabel",
+                "accessType": "direct",
+                "description": "创建镜像目录label",
+                "value": "创建镜像用目录"
+            },
+
+            {
+                "label": "拉取nignx镜像",
+                "paramName": "sshPullNgImage",
+                "accessType": "direct",
+                "description": "拉取nignx镜像",
+                "value": "docker pull nginx:latest"
+            },
+            {
+                "label": "拉取nignx镜像label",
+                "paramName": "sshPullNgImageLabel",
+                "accessType": "direct",
+                "description": "拉取nignx镜像",
+                "value": "拉取nignx镜像"
+            },
+
+            {
+                "label": "打包基础镜像",
+                "paramName": "sshPackageImage",
+                "accessType": "afterCure",
+                "description": "打包基础镜像",
+                "value": "docker save -o {serveWorkPath}/images/dependencies-images.tar fedf-node-serve:latest fedf-node-mongo:latest nginx:latest"
+            },
+            {
+                "label": "打包基础镜像label",
+                "paramName": "sshPackageImageLabel",
+                "accessType": "direct",
+                "description": "打包基础镜像",
+                "value": "打包基础镜像"
+            },
+            {
+                "label": "结束ssh会话",
+                "paramName": "endSsh",
+                "accessType": "direct",
+                "description": "结束ssh会话",
+                "value": true
+            }
+        ],
+        "functionList": [
+            {
+                "functionName": "scripts",
+                "paramNames": [ "scriptName" ],
+                "description": "执行scripts打包",
+                "needExecute": [
+                    {
+                        "key": "scripts",
+                        "value": "",
+                        "condition": "equal"
+                    },
+                    {
+                        "key": "rebuildList",
+                        "value": "webDist",
+                        "condition": "contain"
+                    }
+                ]
+            },
+            {
+                "functionName": "copyFileToPath",
+                "paramNames": [ "packages" ],
+                "description": "复制文件列表到指定的缓存目录"
+            },
+            {
+                "functionName": "createContentFile",
+                "paramNames": [ "configFile", "fileContent"],
+                "needExecute": [
+                    {
+                        "key": "rebuildList",
+                        "value": "docker",
+                        "condition": "contain"
+                    }
+                ],
+                "description": "使用文件名与文件路径 创建配置文件"
+            },
+            {
+                "functionName": "packageFile",
+                "paramNames": [ "filenameField", "localCachePath"],
+                "description": "打包目录为指定文件名的压缩包。"
+            },
+            {
+                "functionName": "clearCacheDir",
+                "paramNames": [ "localCachePath" ],
+                "description": "清除缓存目录"
+            },
+            {
+                "functionName": "clearOldPackage",
+                "paramNames": [ "fliterRule", "keepFilesCount" ],
+                "description": "清除指定规则包含的文件"
+            },
+            {
+                "functionName": "sshLogin",
+                "paramNames": [ "serveIp", "username", "password" ],
+                "description": "远程登陆"
+            },
+            {
+                "functionName": "sshCreateDir",
+                "paramNames": [ "sshClient", "serveWorkPath", "createWorkPathLabel" ],
+                "description": "创建远程工作目录"
+            },
+            {
+                "functionName": "sshUpload",
+                "paramNames": [ "sshClient", "filenameField", "serveWorkPath" ],
+                "description": "上传本地文件到服务指定目录"
+            },
+            {
+                "functionName": "sshCommand",
+                "paramNames": [ "sshClient", "sshCommand1", "sshCommandLabel1"],
+                "needExecute": [
+                    {
+                        "key": "functionList",
+                        "value": "clear-pic",
+                        "condition": "contain"
+                    }
+                ],
+                "description": "初始化图片空间"
+            },
+            {
+                "functionName": "sshCommand",
+                "paramNames": [ "sshClient", "sshCommand2", "sshCommandLabel2"],
+                "needExecute": [
+                    {
+                        "key": "taskOption",
+                        "value": "update",
+                        "condition": "equal"
+                    }
+                ],
+                "description": "解压文件"
+            },
+            {
+                "functionName": "sshCommand",
+                "paramNames": [ "sshClient", "sshCommand3", "sshCommandLabel3"],
+                "needExecute": [
+                    {
+                        "key": "rebuildList",
+                        "value": [],
+                        "condition": "unequal"
+                    },
+                    {
+                        "key": "taskOption",
+                        "value": "update",
+                        "condition": "equal"
+                    }
+                ],
+                "description": "更新服务"
+            },
+            {
+                "functionName": "sshCreateDir",
+                "paramNames": [ "sshClient", "sshCreateDirExport", "sshCreateDirExportLabel" ],
+                "needExecute": [
+                    {
+                        "key": "functionList",
+                        "value": "save-image",
+                        "condition": "contain"
+                    }
+                ],
+                "description": "创建拉取镜像目录"
+            },
+            {
+                "functionName": "sshCommand",
+                "paramNames": [ "sshClient", "sshPullNgImage", "sshPullNgImageLabel" ],
+                "needExecute": [
+                    {
+                        "key": "functionList",
+                        "value": "save-image",
+                        "condition": "contain"
+                    }
+                ],
+                "description": "拉取nignx镜像"
+            },
+            {
+                "functionName": "sshCommand",
+                "paramNames": [ "sshClient", "sshPackageImage", "sshPackageImageLabel" ],
+                "needExecute": [
+                    {
+                        "key": "functionList",
+                        "value": "save-image",
+                        "condition": "contain"
+                    }
+                ],
+                "description": "打包基础镜像"
+            },
+            {
+                "functionName": "sshCommand",
+                "paramNames": [ "sshClient", "commandViewDockerPs", "commandViewDockerPsLabel", "endSsh" ],
+                "needExecute": [
+                    {
+                        "key": "taskOption",
+                        "value": "install",
+                        "condition": "unequal"
+                    }
+                ],
+                "description": "查看当前 docker 进程状态"
+            }
+
+        ],
+        "description": "自动发版运营平台"
+    }
+]
